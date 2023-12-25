@@ -11,30 +11,33 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   Button,
   TouchableOpacity,
   Dimensions,
   FlatList,
 } from 'react-native';
-import {NativeBaseProvider, Box, CheckIcon} from 'native-base';
+import {NativeBaseProvider, Box, Pressable, Center} from 'native-base';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import LinearGradient from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/Entypo';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 const {width, height} = Dimensions.get('window');
 const baseHeight = width / 5;
-function App(): React.JSX.Element {
+function App({navigation}: any): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   console.log('isDarkMode', isDarkMode);
 
   return (
-    <LinearGradient colors={['#432C40', '#F64040']} style={styles.container}>
-      <StatusBar hidden />
-      <Header />
-      <FormLogin />
-      <Footer />
-    </LinearGradient>
+    <NativeBaseProvider>
+      <LinearGradient colors={['#432C40', '#F64040']} style={styles.container}>
+        <StatusBar hidden />
+        <Header />
+        <FormLogin navigation={navigation} />
+        <Footer />
+      </LinearGradient>
+    </NativeBaseProvider>
   );
 }
 const Header = () => (
@@ -69,42 +72,69 @@ const Header = () => (
   </View>
 );
 
-const FormLogin = () => (
-  <View
-    style={{
-      flex: 2,
-      paddingHorizontal: width / 10,
-    }}>
-    <View>
-      <Text style={styles.title}>Email</Text>
-      <TextInput style={styles.input} />
+const FormLogin = ({navigation}: any) => {
+  const [isShowPassword, setIsShowPassword] = React.useState(false);
+  return (
+    <View
+      style={{
+        flex: 2,
+        paddingHorizontal: width / 10,
+      }}>
+      <View>
+        <Text style={styles.title}>Email</Text>
+        <TextInput style={styles.input} />
+      </View>
+      <View style={{marginTop: 20}}>
+        <Text style={styles.title}>Password</Text>
+        <Box
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center">
+          <TextInput
+            secureTextEntry={!isShowPassword}
+            style={[styles.input, {flex: 1, color: '#F64040'}]}
+          />
+          <Pressable
+            h="70%"
+            w="10"
+            onPress={() => setIsShowPassword(!isShowPassword)}
+            justifyContent={'center'}
+            alignItems={'center'}>
+            <Icon
+              name={isShowPassword ? 'eye' : 'eye-with-line'}
+              size={20}
+              color="#F8706E"
+            />
+          </Pressable>
+        </Box>
+      </View>
+      <View style={{alignItems: 'flex-end', marginVertical: 25}}>
+        <Text>Forgot password</Text>
+      </View>
+      <View>
+        <Pressable
+          onPress={() => {
+            console.log('press');
+            navigation.navigate('Home');
+          }}
+          style={[
+            {
+              backgroundColor: '#F64040',
+              height: 50,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 30,
+            },
+            styles.shadow,
+          ]}>
+          <Text style={{color: '#fff', fontSize: 20, fontWeight: '800'}}>
+            Sign in
+          </Text>
+        </Pressable>
+      </View>
     </View>
-    <View style={{marginTop: 20}}>
-      <Text style={styles.title}>Password</Text>
-      <TextInput secureTextEntry style={styles.input} />
-    </View>
-    <View style={{alignItems: 'flex-end', marginVertical: 25}}>
-      <Text>Forgot password</Text>
-    </View>
-    <View>
-      <TouchableOpacity
-        style={[
-          {
-            backgroundColor: '#F64040',
-            height: 50,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: 30,
-          },
-          styles.shadow,
-        ]}>
-        <Text style={{color: '#fff', fontSize: 20, fontWeight: '800'}}>
-          Sign in
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
+  );
+};
 
 const Footer = () => (
   <View
@@ -230,16 +260,41 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+// export default App;
+const Stack = createNativeStackNavigator();
 
-function App1() {
+const HomeScreen = ({navigation}: any) => {
   return (
     <NativeBaseProvider>
-      <Box flex={1} bg="#ff4" alignItems="center" justifyContent="center">
-        <Text>Open up App.js to start working on your app!</Text>
-        <CheckIcon />
-        <Icon name="rocket" size={30} color="#900" />
-      </Box>
+      <Center flex={1} justifyContent={'center'}>
+        <Text>Home Screen</Text>
+        <Pressable
+          _pressed={{backgroundColor: 'red'}}
+          onPress={() => {
+            navigation.navigate('Login');
+          }}>
+          <Text>Logout</Text>
+        </Pressable>
+      </Center>
     </NativeBaseProvider>
+  );
+};
+
+export default function AppRoot() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          options={{headerShown: false}}
+          name="Login"
+          component={App}
+        />
+        <Stack.Screen
+          options={{headerShown: false}}
+          name="Home"
+          component={HomeScreen}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
