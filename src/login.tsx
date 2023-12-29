@@ -3,34 +3,18 @@ import {
   View, // tương ứng vs thẻ div trong web (thường dùng để layout component )
   Text, // tương ứng vs thẻ p trong web (thường dùng để hiển thị text) string phải được bọc trong Text
   StyleSheet,
-  SafeAreaView,
-  ScrollView,
   StatusBar,
-  useColorScheme,
-  Image,
   TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  Button,
-  TouchableOpacity,
   Dimensions,
-  FlatList,
 } from 'react-native';
 import {NativeBaseProvider, Box, Pressable, Center} from 'native-base';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import LinearGradient from 'react-native-linear-gradient';
-import Icon from 'react-native-vector-icons/Ionicons';
-import {
-  NavigationContainer,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/Entypo';
 
-const {width, height} = Dimensions.get('window');
-const baseHeight = width / 5;
-function App({navigation}: any): React.JSX.Element {
+const {width} = Dimensions.get('window');
+console.log('0000', width);
+
+export default function App({navigation}: any): React.JSX.Element {
   return (
     <NativeBaseProvider>
       <LinearGradient colors={['#432C40', '#F64040']} style={styles.container}>
@@ -121,8 +105,7 @@ const FormLogin = ({navigation}: any) => {
           }}
           style={[
             {
-              // backgroundColor: '#F64040',
-              backgroundColor: 'blue',
+              backgroundColor: '#F64040',
               height: 50,
               alignItems: 'center',
               justifyContent: 'center',
@@ -236,23 +219,23 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   egg2: {
-    width: 400,
-    height: 400,
+    width: (4 * width) / 5,
+    height: (4 * width) / 5,
     borderRadius: 200,
     backgroundColor: '#F64040',
     position: 'absolute',
-    top: -70,
-    right: -70,
+    top: -width / 7,
+    right: -width / 7,
     zIndex: 1000,
   },
   egg: {
-    width: 350,
-    height: 350,
-    borderRadius: 250,
+    width: width / 1.12,
+    height: width / 1.12,
+    borderRadius: width / 1.572,
     transform: [{scaleX: 1.1}],
     position: 'absolute',
-    top: -50,
-    left: -70,
+    top: -width / 7.86,
+    left: -width / 5.614,
     backgroundColor: '#432C40',
     zIndex: 1001,
   },
@@ -262,109 +245,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-// export default App;
-const Stack = createNativeStackNavigator();
-
-const HomeScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  console.log('route', route);
-  return (
-    <NativeBaseProvider>
-      <Center flex={1} justifyContent={'center'}>
-        <Text>Home Screen</Text>
-        <Pressable
-          _pressed={{backgroundColor: 'red'}}
-          onPress={() => {
-            navigation.navigate('Login');
-          }}>
-          <Text>Logout</Text>
-        </Pressable>
-      </Center>
-    </NativeBaseProvider>
-  );
-};
-
-const AuthScreen = () => {
-  return (
-    <Center flex={1} justifyContent={'center'}>
-      <Text>Auth Screen</Text>
-    </Center>
-  );
-};
-
-function Home() {
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Home!</Text>
-    </View>
-  );
-}
-
-function Settings() {
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Settings!</Text>
-    </View>
-  );
-}
-
-const Tab = createBottomTabNavigator();
-
-function MainApp() {
-  return (
-    <Tab.Navigator
-      screenOptions={({route}) => ({
-        tabBarIcon: ({focused, color, size}) => {
-          let iconName;
-          if (route.name === 'Home') {
-            iconName = focused ? 'home' : 'home';
-          } else if (route.name === 'Settings') {
-            iconName = focused ? 'settings-outline' : 'settings-outline';
-          }
-          // You can return any component that you like here!
-          return <Icon name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: 'blue',
-        tabBarInactiveTintColor: 'gray',
-      })}>
-      <Tab.Screen name="Home" component={Home} />
-      <Tab.Screen name="Settings" component={Settings} />
-    </Tab.Navigator>
-  );
-}
-
-export default function AppRoot() {
-  return (
-    <NavigationContainer>
-      {0 ? (
-        <Stack.Navigator>
-          <Stack.Screen
-            options={{headerShown: false}}
-            name="Login"
-            component={App}
-          />
-          <Stack.Screen
-            // options={{headerShown: false}}
-            // options={({ route }) => ({ title: route.params.name })}
-            options={{
-              title: 'My home',
-              headerStyle: {
-                backgroundColor: '#f4511e',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}
-            name="Home"
-            component={HomeScreen}
-          />
-        </Stack.Navigator>
-      ) : (
-        <MainApp />
-      )}
-    </NavigationContainer>
-  );
-}
