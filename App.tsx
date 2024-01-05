@@ -17,7 +17,6 @@ import {
   FlatList,
 } from 'react-native';
 import {NativeBaseProvider, Box, Pressable, Center} from 'native-base';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
@@ -338,33 +337,33 @@ function MainApp() {
 export default function AppRoot() {
   return (
     <NavigationContainer>
-      {0 ? (
-        <Stack.Navigator>
-          <Stack.Screen
-            options={{headerShown: false}}
-            name="Login"
-            component={App}
-          />
-          <Stack.Screen
-            // options={{headerShown: false}}
-            // options={({ route }) => ({ title: route.params.name })}
-            options={{
-              title: 'My home',
-              headerStyle: {
-                backgroundColor: '#f4511e',
-              },
-              headerTintColor: '#fff',
-              headerTitleStyle: {
-                fontWeight: 'bold',
-              },
-            }}
-            name="Home"
-            component={HomeScreen}
-          />
-        </Stack.Navigator>
-      ) : (
+      {/* {1 ? ( */}
+      <Stack.Navigator>
+        <Stack.Screen
+          options={{headerShown: false}}
+          name="Login"
+          component={Settings}
+        />
+        <Stack.Screen
+          // options={{headerShown: false}}
+          // options={({ route }) => ({ title: route.params.name })}
+          options={{
+            title: 'My home',
+            headerStyle: {
+              backgroundColor: '#f4511e',
+            },
+            headerTintColor: '#fff',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+          name="Home"
+          component={HomeScreen}
+        />
+      </Stack.Navigator>
+      {/* ) : (
         <MainApp />
-      )}
+      )} */}
     </NavigationContainer>
   );
 }

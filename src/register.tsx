@@ -10,24 +10,29 @@ import {
 } from 'react-native';
 import {NativeBaseProvider, Box, Pressable, Center} from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
 import Icon from 'react-native-vector-icons/Entypo';
-import {useNavigation} from '@react-navigation/native';
-import {FormInput, PasswordInput} from './component/form_input';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
-const {width} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 console.log('0000', width);
 
-export default function App({navigation, setLogin}: any): React.JSX.Element {
+export default function App({navigation}: any): React.JSX.Element {
   return (
     <NativeBaseProvider>
-      <LinearGradient colors={['#432C40', '#F64040']} style={styles.container}>
-        <StatusBar hidden />
-        <Header />
-        <FormLogin setLogin={setLogin} />
-        <Footer />
-      </LinearGradient>
+      <Box style={{flex: 1}}>
+        <KeyboardAwareScrollView>
+          <LinearGradient
+            colors={['#432C40', '#F64040']}
+            style={styles.container}>
+            <StatusBar hidden />
+            <Header />
+            <FormLogin />
+            <Footer />
+          </LinearGradient>
+        </KeyboardAwareScrollView>
+      </Box>
     </NativeBaseProvider>
   );
 }
@@ -57,22 +62,21 @@ const Header = () => (
           marginLeft: 10,
         }}>
         <Text style={styles.textHeader}>Wellcome</Text>
-        <Text style={styles.textHeader}>Back</Text>
+        <Text style={styles.textHeader}></Text>
       </View>
     </View>
   </View>
 );
 
-const FormLogin = ({setLogin}) => {
-  const navigation = useNavigation();
+const FormLogin = () => {
+  const nagivation = useNavigation();
   const [data, setData] = React.useState<any>([]);
   const onSubmit = async () => {
     try {
       console.log('data', data);
-      const result = await axios.post('http://localhost:3000/auth/login', data);
-      AsyncStorage.setItem('token', result.data.token);
-      AsyncStorage.setItem('user', JSON.stringify(result.data.data));
-      setLogin(true);
+      const result = await axios.post('http://localhost:3000/auth/register', data);
+      console.log('result', result.data);
+      nagivation.navigate('Login');
     } catch (error) {
       console.log('error', error);
       Alert.alert('Error', error?.message);
@@ -82,6 +86,7 @@ const FormLogin = ({setLogin}) => {
     <View
       style={{
         flex: 2,
+        justifyContent: 'center',
         paddingHorizontal: width / 10,
       }}>
       <FormInput
@@ -102,6 +107,18 @@ const FormLogin = ({setLogin}) => {
             password: text,
           })
         }
+      />
+      <FormInput
+        label="Age"
+        value={data.age}
+        onChange={(text: any) =>
+          setData({
+            ...data,
+            age: text,
+          })
+        }
+        keyboardType="numeric"
+        wrapperStyle={{marginTop: 20}}
       />
       <View style={{alignItems: 'flex-end', marginVertical: 25}}>
         <Text>Forgot password</Text>
@@ -130,34 +147,77 @@ const FormLogin = ({setLogin}) => {
   );
 };
 
-const Footer = () => {
-  const navigation: any = useNavigation();
-  return (
+const Footer = () => (
+  <View
+    style={{
+      flex: 1,
+      position: 'relative',
+    }}>
+    <View style={[styles.footerCircle]}></View>
+
     <View
       style={{
-        flex: 1,
-        position: 'relative',
+        position: 'absolute',
+        bottom: 30,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
       }}>
-      <View style={[styles.footerCircle]}></View>
+      <Text style={{color: '#fff', fontWeight: '600'}}>
+        Don't have an account? <Text style={{color: '#F64040'}}> SIGN UP</Text>
+      </Text>
+    </View>
+  </View>
+);
 
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 30,
-          left: 0,
-          right: 0,
-          alignItems: 'center',
-        }}>
+const FormInput = ({
+  label,
+  value,
+  onChange,
+  wrapperStyle = {},
+  keyboardType,
+}: any) => {
+  return (
+    <View style={wrapperStyle}>
+      <Text style={styles.title}>{label}</Text>
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        style={styles.input}
+        keyboardType={keyboardType}
+      />
+    </View>
+  );
+};
+
+const PasswordInput = ({label = 'Password', value, onChange}: any) => {
+  const [isShowPassword, setIsShowPassword] = React.useState(false);
+  return (
+    <View style={{marginTop: 20}}>
+      <Text style={styles.title}>{label}</Text>
+      <Box
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center">
+        <TextInput
+          value={value}
+          onChangeText={onChange}
+          secureTextEntry={!isShowPassword}
+          style={[styles.input, {flex: 1, color: '#F64040'}]}
+        />
         <Pressable
-          onPress={() => {
-            navigation.navigate('Register');
-          }}>
-          <Text style={{color: '#fff', fontWeight: '600'}}>
-            Don't have an account?{' '}
-            <Text style={{color: '#F64040'}}> SIGN UP</Text>
-          </Text>
+          // h="70%"
+          w="10"
+          onPress={() => setIsShowPassword(!isShowPassword)}
+          justifyContent={'center'}
+          alignItems={'center'}>
+          <Icon
+            name={isShowPassword ? 'eye' : 'eye-with-line'}
+            size={20}
+            color="#F8706E"
+          />
         </Pressable>
-      </View>
+      </Box>
     </View>
   );
 };
@@ -210,7 +270,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#640c0c',
+    height: height,
   },
   box: {
     height: 100,

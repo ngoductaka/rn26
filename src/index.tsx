@@ -7,6 +7,7 @@ import {
 } from '@react-navigation/native';
 import {get} from 'lodash';
 import Login from './login';
+import Register from './register';
 
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -84,43 +85,50 @@ const HomeStack = () => {
   );
 };
 
-const AuthStack = () => {
+const AuthStack = ({setLogin}: any) => {
   return (
     <Stack.Navigator>
       <Stack.Screen
         options={{headerShown: false}}
         name="Login"
-        component={Login}
+        component={() => <Login setLogin={setLogin} />}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="Register"
+        component={Register}
       />
     </Stack.Navigator>
   );
 };
 
+const AppStack = () => (
+  <Tab.Navigator
+    screenOptions={({route}) => ({
+      tabBarIcon: renderTabIcon(route),
+      tabBarActiveTintColor: 'red',
+      tabBarInactiveTintColor: 'gray',
+    })}>
+    <Tab.Screen
+      options={{headerShown: false}}
+      name="Home"
+      component={HomeStack}
+    />
+    <Tab.Screen
+      options={{headerShown: false}}
+      name="Settings"
+      component={Detail}
+    />
+  </Tab.Navigator>
+);
 const Tab = createBottomTabNavigator();
 
 const App = () => {
-  const [isLogin, setIsLogin] = React.useState(true);
+  const [isLogin, setIsLogin] = React.useState(false);
   return (
     <NativeBaseProvider>
       <NavigationContainer>
-        {/* {!isLogin ? <AuthStack /> : <AppStack />} */}
-        <Tab.Navigator
-          screenOptions={({route}) => ({
-            tabBarIcon: renderTabIcon(route),
-            tabBarActiveTintColor: 'red',
-            tabBarInactiveTintColor: 'gray',
-          })}>
-          <Tab.Screen
-            options={{headerShown: false}}
-            name="Home"
-            component={HomeStack}
-          />
-          <Tab.Screen
-            options={{headerShown: false}}
-            name="Settings"
-            component={Detail}
-          />
-        </Tab.Navigator>
+        {!isLogin ? <AuthStack setLogin={setIsLogin} /> : <AppStack />}
       </NavigationContainer>
     </NativeBaseProvider>
   );
