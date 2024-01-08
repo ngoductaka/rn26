@@ -12,48 +12,11 @@ import Register from './register';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import {useDispatch, useSelector} from 'react-redux';
+import { logOut } from './redux/user.slice';
+import Home from './screen/home';
+import Setting from './screen/setting';
 const Stack = createNativeStackNavigator();
-
-const Home = () => {
-  const navigation: any = useNavigation();
-  return (
-    <Center flex={1}>
-      <Pressable
-        onPress={() => {
-          navigation.navigate('Detail', {
-            productId: '123',
-            productName: 'Coca Cola',
-          });
-        }}>
-        <Text>View Details 1</Text>
-      </Pressable>
-      <Pressable
-        onPress={() => {
-          navigation.navigate('Detail', {
-            productId: '123',
-            productName: 'Pepsi',
-          });
-        }}>
-        <Text>View Details 2</Text>
-      </Pressable>
-    </Center>
-  );
-};
-const Detail = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  return (
-    <Center flex={1}>
-      <Pressable
-        onPress={() => {
-          navigation.goBack();
-        }}>
-        <Text>Go back</Text>
-      </Pressable>
-    </Center>
-  );
-};
 
 const HomeStack = () => {
   return (
@@ -79,19 +42,19 @@ const HomeStack = () => {
           //   headerBackTitle: 'Back',
         })}
         name="Detail"
-        component={Detail}
+        component={Setting}
       />
     </Stack.Navigator>
   );
 };
 
-const AuthStack = ({setLogin}: any) => {
+const AuthStack = () => {
   return (
     <Stack.Navigator>
       <Stack.Screen
         options={{headerShown: false}}
         name="Login"
-        component={() => <Login setLogin={setLogin} />}
+        component={() => <Login />}
       />
       <Stack.Screen
         options={{headerShown: false}}
@@ -117,18 +80,22 @@ const AppStack = () => (
     <Tab.Screen
       options={{headerShown: false}}
       name="Settings"
-      component={Detail}
+      component={Setting}
     />
   </Tab.Navigator>
 );
 const Tab = createBottomTabNavigator();
 
 const App = () => {
-  const [isLogin, setIsLogin] = React.useState(false);
+  const isLogin = useSelector((state: any) => {
+    console.log('state', state);
+    return state.user.isLogin;
+  });
+
   return (
     <NativeBaseProvider>
       <NavigationContainer>
-        {!isLogin ? <AuthStack setLogin={setIsLogin} /> : <AppStack />}
+        {!isLogin ? <AuthStack /> : <AppStack />}
       </NavigationContainer>
     </NativeBaseProvider>
   );

@@ -13,21 +13,28 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Entypo';
 import {useNavigation} from '@react-navigation/native';
 import {FormInput, PasswordInput} from './component/form_input';
+import {useDispatch, useSelector} from 'react-redux';
+
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {loginSuccess} from './redux/user.slice';
+
+const URL_BASE = 'https://fc37-2402-9d80-271-77a9-2d96-9cf9-e18a-e069.ngrok-free.app'
 
 const {width} = Dimensions.get('window');
 console.log('0000', width);
 
-export default function App({navigation, setLogin}: any): React.JSX.Element {
+export default function App({navigation}: any): React.JSX.Element {
   return (
     <NativeBaseProvider>
-      <LinearGradient colors={['#432C40', '#F64040']} style={styles.container}>
-        <StatusBar hidden />
-        <Header />
-        <FormLogin setLogin={setLogin} />
-        <Footer />
-      </LinearGradient>
+        <LinearGradient
+          colors={['#432C40', '#F64040']}
+          style={styles.container}>
+          <StatusBar hidden />
+          <Header />
+          <FormLogin />
+          <Footer />
+        </LinearGradient>
     </NativeBaseProvider>
   );
 }
@@ -63,16 +70,18 @@ const Header = () => (
   </View>
 );
 
-const FormLogin = ({setLogin}) => {
+const FormLogin = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [data, setData] = React.useState<any>([]);
   const onSubmit = async () => {
     try {
       console.log('data', data);
-      const result = await axios.post('http://localhost:3000/auth/login', data);
+      const result = await axios.post(`${URL_BASE}/auth/login`, data);
       AsyncStorage.setItem('token', result.data.token);
       AsyncStorage.setItem('user', JSON.stringify(result.data.data));
-      setLogin(true);
+
+      dispatch(loginSuccess(result.data));
     } catch (error) {
       console.log('error', error);
       Alert.alert('Error', error?.message);
