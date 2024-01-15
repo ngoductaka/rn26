@@ -1,153 +1,115 @@
-import React, { useRef, useEffect } from 'react';
-import { Button, Animated, View, StyleSheet, Text, Easing, Dimensions } from 'react-native';
+import axios from 'axios';
+import * as React from 'react';
+import {
+    Text,
+    View,
+    SafeAreaView,
+    Image,
+    ImageBackground,
+    Alert,
+    ActivityIndicator,
+    Dimensions
+} from 'react-native';
+
 const { width, height } = Dimensions.get('window');
 
-const AnimationScreen = () => {
-    // animation value 
-    const loop = useRef(null);
-    const loopAnimation = useRef(new Animated.Value(0)).current;
-    const fadeAnimation = useRef(
-        new Animated.Value(1)
-    ).current;
-    const springAnimation = useRef(
-        new Animated.Value(1)
-    ).current;
+import Carousel from 'react-native-snap-carousel';
 
-    const action1 = () => {
-        // animation action type
-
-        console.log('action1', loop.current);
-        loop.current.start();
-        Animated.timing(fadeAnimation, {
-            toValue: 0,
-            duration: 2000,
-        }).start();
-    }
-    const action2 = () => {
-        console.log('action2', loop.current);
-        loop.current.stop();
-        // animation action type
-        Animated.timing(fadeAnimation, {
-            toValue: 1,
-            duration: 1500,
-            easing: Easing.bounce,
-        }).start();
-    }
-    const action3 = () => {
-        Animated.spring(springAnimation, {
-            toValue: 2,
-            friction: 8,
-            tension: 100,
-        }).start();
-    }
-    const action4 = () => {
-        Animated.spring(springAnimation, {
-            toValue: 1,
-            friction: 8,
-            tension: 100,
-        }).start();
-    }
-    useEffect(() => {
-        loop.current = Animated.loop(
-            Animated.timing(loopAnimation, {
-                toValue: 1,
-                duration: 10000,
+const App = () => {
+    const [activeIndex, setActiveIndex] = React.useState(0);
+    const [listImg, setListImg] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
+    React.useEffect(() => {
+        setLoading(true);
+        axios.get('https://picsum.photos/v2/list?page=2&limit=10')
+            .then(res => {
+                console.log(res.data, 'dddd')
+                setListImg(res.data);
+                setLoading(false)
             })
-        );
-    })
+            .catch(err => {
+                setLoading(false)
+                Alert.alert('Error', err.message)
+            })
+    }, []);
+    console.log(activeIndex)
+
+    if (loading) return <ActivityIndicator size="large" color="#0000ff" />
     return (
-        <Animated.View style={[styles.container, {
-            backgroundColor: loopAnimation.interpolate({
-                inputRange: [0, 0.5, 1],
-                outputRange: ['#C06C84', '#6C5B7B', '#C06C84'],
-            }),
-        }]}>
-            {/* Element */}
-            <Animated.View style={[styles.box, {
-                opacity: fadeAnimation,
-                backgroundColor: fadeAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['#000', '#fff'],
-                }),
+        <View style={{ flex: 1 }}>
+            <ImageBackground source={{ uri: listImg[activeIndex].download_url }}
+                style={{
+                    flex: 1, resizeMode: 'cover',
+                    justifyContent: 'center', position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    opacity: 0.3
+                }} />
+            <SafeAreaView style={{ flex: 1, paddingTop: 50, justifyContent: 'center' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', zIndex: 2 }}>
+                    <Carousel
+                        layout={"default"}
+                        ref={ref => carousel = ref}
+                        data={carouselItems}
+                        sliderWidth={width-30}
+                        itemWidth={width-30}
+                        renderItem={({ item, index }) => _renderItem({ item, listImg, index })}
+                        onSnapToItem={index => setActiveIndex(index)} />
+                </View>
+            </SafeAreaView>
+        </View>
 
-                height: fadeAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [10, 200],
-                }),
-                width: fadeAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [10, 200],
-                }),
-                borderRadius: fadeAnimation.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [5, 100],
-                }),
 
-                transform: [{
-                    translateY: fadeAnimation.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, -200],
-                    })
-                }]
-            }]} />
-            <Animated.View style={[styles.box1, {
-                // transform: [{
-                //     scale: springAnimation.interpolate({
-                //         inputRange: [1, 2],
-                //         outputRange: [1, 1.1 * height],
-                //     })
-                // }],
-                height: springAnimation.interpolate({
-                    inputRange: [1, 2],
-                    outputRange: [100, 1.1 * height],
-                }),
-                width: springAnimation.interpolate({
-                    inputRange: [1, 2],
-                    outputRange: [100, 1.1 * height],
-                }),
-                borderRadius: springAnimation.interpolate({
-                    inputRange: [1, 2],
-                    outputRange: [50, 1.1 * height / 2],
-                }),
-            }]} />
-
-            <Button
-                onPress={action2}
-                title='[timing] show' />
-            <Button
-                onPress={action1}
-                title='[timing] hidden' />
-            <Button
-                onPress={action3}
-                title='[spring] zoom out' />
-            <Button
-                onPress={action4}
-                title='[spring] zoom in' />
-
-        </Animated.View>
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    box: {
-        width: 10,
-        height: 10,
-        borderRadius: 10,
-        backgroundColor: 'red',
-    },
-    box1: {
-        width: 100,
-        height: 100,
-        backgroundColor: 'blue',
-        zIndex: 0,
-        opacity: 0.5,
-        position: 'absolute',
-    },
-});
+export default App;
 
-export default AnimationScreen;
+const _renderItem = ({ item, index, listImg }) => {
+    return (
+        <View style={{
+            backgroundColor: 'floralwhite',
+            borderRadius: 5,
+            height: 250,
+            // padding: 50,
+            marginLeft: 5,
+            marginRight: 5,
+        }}>
+            <View style={{ flex: 1, backgroundColor: 'red', borderRadius: 10, overflow: 'hidden' }}>
+                <ImageBackground source={{ uri: listImg[index].download_url }} style={{ flex: 1, borderRadius: 10, overflow: 'hidden' }}>
+                    <Text style={{ fontSize: 30 }}>{item.title}</Text>
+                    <Text>{item.text}</Text>
+                </ImageBackground>
+            </View>
+        </View>
+
+    )
+}
+
+const carouselItems = [
+    {
+        title: "Item 1",
+        text: "Text 1",
+        img: 'https://picsum.photos/200',
+    },
+    {
+        title: "Item 2",
+        text: "Text 2",
+        img: 'https://picsum.photos/200',
+    },
+    {
+        title: "Item 3",
+        text: "Text 3",
+        img: 'https://picsum.photos/200',
+    },
+    {
+        title: "Item 4",
+        text: "Text 4",
+        img: 'https://picsum.photos/200',
+    },
+    {
+        title: "Item 5",
+        text: "Text 5",
+        img: 'https://picsum.photos/200',
+    },
+]
+
